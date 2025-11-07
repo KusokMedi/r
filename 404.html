@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перенаправление...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #333;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .manual-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .manual-link:hover {
+            background: #555;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1 id="message">Перенаправление...</h1>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // Получаем alias из URL
+        const path = window.location.pathname;
+        // Убираем начальный слэш и берём первую часть пути
+        const parts = path.split('/').filter(p => p);
+        const alias = parts[0] || '';
+
+        async function redirect() {
+            try {
+                // Загружаем конфигурацию редиректов
+                const response = await fetch('/redirects.json');
+                const data = await response.json();
+                
+                if (!alias) {
+                    document.getElementById('message').textContent = 'Alias не указан';
+                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /alias</p>';
+                    document.querySelector('.spinner').style.display = 'none';
+                    return;
+                }
+
+                // Ищем URL по alias
+                const redirectUrl = data.redirects[alias];
+                
+                if (redirectUrl) {
+                    // Мгновенный редирект
+                    window.location.replace(redirectUrl);
+                    
+                    // На случай, если редирект не сработал - показываем ссылку
+                    setTimeout(() => {
+                        document.getElementById('content').innerHTML = 
+                            `<a href="${redirectUrl}" class="manual-link">Перейти вручную</a>`;
+                    }, 100);
+                } else {
+                    document.getElementById('message').textContent = 'Ссылка не найдена';
+                    document.getElementById('content').innerHTML = 
+                        `<p class="error">Alias "${alias}" не найден</p>`;
+                    document.querySelector('.spinner').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('message').textContent = 'Ошибка';
+                document.getElementById('content').innerHTML = 
+                    '<p class="error">Не удалось загрузить конфигурацию</p>';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        }
+
+        // Запускаем редирект
+        redirect();
+    </script>
+</body>
+</html>
