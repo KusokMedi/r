@@ -83,19 +83,20 @@
     <script>
         // Получаем alias из URL
         const path = window.location.pathname;
-        // Убираем начальный слэш и берём первую часть пути
+        // Разбиваем путь: /r/customtext -> ['r', 'customtext']
         const parts = path.split('/').filter(p => p);
-        const alias = parts[0] || '';
+        // Берём вторую часть (после /r/)
+        const alias = parts[1] || '';
 
         async function redirect() {
             try {
                 // Загружаем конфигурацию редиректов
-                const response = await fetch('/redirects.json');
+                const response = await fetch('redirects.json');
                 const data = await response.json();
                 
                 if (!alias) {
                     document.getElementById('message').textContent = 'Alias не указан';
-                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /alias</p>';
+                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /r/alias</p>';
                     document.querySelector('.spinner').style.display = 'none';
                     return;
                 }
