@@ -18,6 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .container {
@@ -27,6 +28,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             max-width: 400px;
+            width: 100%;
         }
 
         .spinner {
@@ -70,64 +72,82 @@
             color: #d32f2f;
             font-size: 14px;
             margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .home-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .home-link:hover {
+            text-decoration: underline;
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="spinner"></div>
+        <div class="spinner" id="spinner"></div>
         <h1 id="message">Перенаправление...</h1>
         <div id="content"></div>
     </div>
 
     <script>
-        // Получаем alias из URL
         const path = window.location.pathname;
-        // Разбиваем путь: /r/customtext -> ['r', 'customtext']
         const parts = path.split('/').filter(p => p);
-        // Берём вторую часть (после /r/)
         const alias = parts[1] || '';
 
         async function redirect() {
             try {
-                // Загружаем конфигурацию редиректов
                 const response = await fetch('redirects.json');
                 const data = await response.json();
                 
+                // Если нет alias - показываем главную
                 if (!alias) {
-                    document.getElementById('message').textContent = 'Alias не указан';
-                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /r/alias</p>';
-                    document.querySelector('.spinner').style.display = 'none';
+                    window.location.href = '/r/';
                     return;
                 }
 
-                // Ищем URL по alias
                 const redirectUrl = data.redirects[alias];
                 
                 if (redirectUrl) {
                     // Мгновенный редирект
                     window.location.replace(redirectUrl);
                     
-                    // На случай, если редирект не сработал - показываем ссылку
+                    // На случай, если редирект не сработал
                     setTimeout(() => {
                         document.getElementById('content').innerHTML = 
                             `<a href="${redirectUrl}" class="manual-link">Перейти вручную</a>`;
                     }, 100);
                 } else {
+                    // Alias не найден
+                    document.getElementById('spinner').style.display = 'none';
                     document.getElementById('message').textContent = 'Ссылка не найдена';
-                    document.getElementById('content').innerHTML = 
-                        `<p class="error">Alias "${alias}" не найден</p>`;
-                    document.querySelector('.spinner').style.display = 'none';
+                    document.getElementById('content').innerHTML = `
+                        <div class="emoji">🔍</div>
+                        <p class="error">Alias "${alias}" не существует</p>
+                        <a href="/r/" class="home-link">← Вернуться на главную</a>
+                    `;
                 }
             } catch (error) {
+                document.getElementById('spinner').style.display = 'none';
                 document.getElementById('message').textContent = 'Ошибка';
-                document.getElementById('content').innerHTML = 
-                    '<p class="error">Не удалось загрузить конфигурацию</p>';
-                document.querySelector('.spinner').style.display = 'none';
+                document.getElementById('content').innerHTML = `
+                    <div class="emoji">⚠️</div>
+                    <p class="error">Не удалось загрузить конфигурацию</p>
+                    <a href="/r/" class="home-link">← Вернуться на главную</a>
+                `;
             }
         }
 
-        // Запускаем редирект
         redirect();
     </script>
 </body>
