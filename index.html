@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перенаправление...</title>
+    <title>Redirect...</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,21 +23,21 @@
 
         .container {
             text-align: center;
-            padding: 50px 40px;
+            padding: 60px 50px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 450px;
+            border-radius: 24px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
             width: 100%;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f0f0f0;
-            border-top: 5px solid #667eea;
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f0f0f0;
+            border-top: 6px solid #7e22ce;
             border-radius: 50%;
-            margin: 0 auto 20px;
+            margin: 0 auto 30px;
             animation: spin 0.8s linear infinite;
         }
 
@@ -46,75 +46,90 @@
         }
 
         h1 {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
+            font-size: 2em;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
 
-        .manual-link {
+        .redirect-btn {
             display: inline-block;
-            margin-top: 20px;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-top: 25px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #7e22ce 0%, #2a5298 100%);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(126, 34, 206, 0.3);
         }
 
-        .manual-link:hover {
+        .redirect-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 12px 30px rgba(126, 34, 206, 0.4);
         }
 
-        .error {
-            color: #d32f2f;
-            font-size: 15px;
-            margin-top: 15px;
-            margin-bottom: 20px;
-            line-height: 1.5;
+        .error-state {
+            animation: fadeIn 0.5s ease;
         }
 
-        .home-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
-            background: #f5f5f5;
-            color: #667eea;
-            text-decoration: none;
-            font-size: 15px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.2s;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .home-link:hover {
-            background: #e8e8e8;
-        }
-
-        .emoji {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: bounce 1s ease infinite;
+        .error-emoji {
+            font-size: 5em;
+            margin-bottom: 25px;
+            animation: bounce 2s ease infinite;
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); }
         }
 
-        .alias-code {
+        .error-text {
+            color: #d32f2f;
+            font-size: 16px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .home-btn {
             display: inline-block;
-            padding: 4px 8px;
+            margin-top: 15px;
+            padding: 14px 28px;
             background: #f5f5f5;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Courier New', monospace;
-            color: #667eea;
+            color: #7e22ce;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .home-btn:hover {
+            background: #e8e8e8;
+        }
+
+        .alias-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #7e22ce;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 30px;
+            }
         }
     </style>
 </head>
@@ -126,59 +141,72 @@
     </div>
 
     <script>
-        const path = window.location.pathname;
-        const parts = path.split('/').filter(p => p);
+        // Получаем путь и разбираем его
+        const fullPath = window.location.pathname;
+        const pathParts = fullPath.split('/').filter(p => p);
         
-        // parts[0] = 'r', parts[1] = alias (если есть)
-        const alias = parts.length > 1 ? parts[1] : '';
+        // pathParts[0] должен быть 'r'
+        // pathParts[1] это alias (если есть)
+        const alias = pathParts.length >= 2 ? pathParts[1] : null;
 
-        async function redirect() {
+        async function handleRedirect() {
+            // Если alias нет - это значит пользователь просто на /r/
+            // Не нужно ничего делать, пусть index.html показывает главную
+            if (!alias) {
+                return;
+            }
+
             try {
                 const response = await fetch('/r/redirects.json');
                 const data = await response.json();
                 
-                // Если нет alias или это главная страница - НЕ редиректим!
-                if (!alias || parts.length === 1) {
-                    // Пользователь на /r или /r/ - это нормально, ничего не делаем
-                    // index.html покажет список
-                    return;
-                }
-
-                const redirectUrl = data.redirects[alias];
+                const targetUrl = data.redirects[alias];
                 
-                if (redirectUrl) {
-                    // Мгновенный редирект
-                    window.location.replace(redirectUrl);
+                if (targetUrl) {
+                    // Найден редирект - перенаправляем
+                    window.location.replace(targetUrl);
                     
-                    // На случай, если редирект не сработал
+                    // На случай если не сработало
                     setTimeout(() => {
                         document.getElementById('content').innerHTML = 
-                            `<a href="${redirectUrl}" class="manual-link">Перейти вручную</a>`;
-                    }, 100);
+                            `<a href="${targetUrl}" class="redirect-btn">Перейти вручную →</a>`;
+                    }, 200);
                 } else {
                     // Alias не найден
-                    document.getElementById('spinner').style.display = 'none';
-                    document.getElementById('message').textContent = 'Ссылка не найдена';
-                    document.getElementById('content').innerHTML = `
-                        <div class="emoji">🔍</div>
-                        <p class="error">
-                            Редирект <span class="alias-code">${alias}</span> не существует в системе
-                        </p>
-                        <a href="/r/" class="home-link">← Посмотреть все ссылки</a>
-                    `;
+                    showError();
                 }
             } catch (error) {
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('message').textContent = 'Ошибка';
-                document.getElementById('content').innerHTML = `
-                    <div class="emoji">⚠️</div>
-                    <p class="error">Не удалось загрузить конфигурацию редиректов</p>
-                    <a href="/r/" class="home-link">← Вернуться на главную</a>
-                `;
+                showLoadError();
             }
         }
 
-        redirect();
+        function showError() {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('message').textContent = 'Ссылка не найдена';
+            document.getElementById('content').innerHTML = `
+                <div class="error-state">
+                    <div class="error-emoji">🔍</div>
+                    <p class="error-text">
+                        Редирект <span class="alias-badge">${alias}</span> не существует
+                    </p>
+                    <a href="/r/" class="home-btn">← Все ссылки</a>
+                </div>
+            `;
+        }
+
+        function showLoadError() {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('message').textContent = 'Ошибка';
+            document.getElementById('content').innerHTML = `
+                <div class="error-state">
+                    <div class="error-emoji">⚠️</div>
+                    <p class="error-text">Не удалось загрузить конфигурацию</p>
+                    <a href="/r/" class="home-btn">← На главную</a>
+                </div>
+            `;
+        }
+
+        handleRedirect();
     </script>
 </body>
 </html>
