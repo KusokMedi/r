@@ -81,9 +81,12 @@
     </div>
 
     <script>
-        // Получаем alias из URL (например: /redirect/customtext -> customtext)
+        // Получаем alias из URL
         const path = window.location.pathname;
-        const alias = path.split('/').filter(p => p && p !== 'redirect').pop() || '';
+        // Разбиваем путь: /r/customtext -> ['r', 'customtext']
+        const parts = path.split('/').filter(p => p);
+        // Берём вторую часть (после /r/)
+        const alias = parts[1] || '';
 
         async function redirect() {
             try {
@@ -93,7 +96,8 @@
                 
                 if (!alias) {
                     document.getElementById('message').textContent = 'Alias не указан';
-                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /redirect/alias</p>';
+                    document.getElementById('content').innerHTML = '<p class="error">Используйте формат: /r/alias</p>';
+                    document.querySelector('.spinner').style.display = 'none';
                     return;
                 }
 
@@ -102,21 +106,23 @@
                 
                 if (redirectUrl) {
                     // Мгновенный редирект
-                    window.location.href = redirectUrl;
+                    window.location.replace(redirectUrl);
                     
                     // На случай, если редирект не сработал - показываем ссылку
-                    document.getElementById('content').innerHTML = 
-                        `<a href="${redirectUrl}" class="manual-link">Перейти вручную</a>`;
+                    setTimeout(() => {
+                        document.getElementById('content').innerHTML = 
+                            `<a href="${redirectUrl}" class="manual-link">Перейти вручную</a>`;
+                    }, 100);
                 } else {
                     document.getElementById('message').textContent = 'Ссылка не найдена';
                     document.getElementById('content').innerHTML = 
-                        `<p class="error">Alias "${alias}" не найден в конфигурации</p>`;
+                        `<p class="error">Alias "${alias}" не найден</p>`;
                     document.querySelector('.spinner').style.display = 'none';
                 }
             } catch (error) {
                 document.getElementById('message').textContent = 'Ошибка';
                 document.getElementById('content').innerHTML = 
-                    '<p class="error">Не удалось загрузить конфигурацию редиректов</p>';
+                    '<p class="error">Не удалось загрузить конфигурацию</p>';
                 document.querySelector('.spinner').style.display = 'none';
             }
         }
